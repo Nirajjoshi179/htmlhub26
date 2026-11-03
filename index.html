@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>HTMLHub - Discover Apps</title>
+
+<link rel="stylesheet"
+ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --blue: #087ff5;
+  --black: #080808;
+  --border: #dedede;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #fff;
+  color: var(--black);
+  padding-bottom: 65px;
+}
+
+button, input, textarea, select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.screen {
+  display: none;
+  min-height: 100vh;
+}
+
+.screen.active {
+  display: block;
+}
+
+/* HEADER AND SEARCH */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.search-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 2px solid #080808;
+  border-radius: 40px;
+  padding: 0 14px;
+  height: 42px;
+  flex: 1;
+  min-width: 0;
+}
+
+.search input {
+  border: 0;
+  outline: 0;
+  width: 100%;
+  min-width: 0;
+}
+
+.bookmark {
+  font-size: 25px;
+  border: 0;
+  background: none;
+  padding: 5px;
+}
+
+/* PROJECT CARDS */
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  padding: 6px;
+}
+
+.card {
+  min-width: 0;
+  padding: 5px;
+  border: 1px solid #eee;
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.card img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border-radius: 12px;
+  background: #eee;
+  display: block;
+}
+
+.card-title {
+  font-size: clamp(14px, 4vw, 20px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 5px 2px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.small-btn {
+  flex: 1;
+  border: 1px solid #ddd;
+  background: white;
+  padding: 8px 2px;
+  border-radius: 9px;
+}
+
+.empty, .load-status {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 30px 10px;
+  color: #777;
+}
+
+.load-status {
+  padding: 15px;
+  font-size: 13px;
+}
+
+/* BOTTOM NAVIGATION */
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 55px;
+  background: white;
+  z-index: 30;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid #eee;
+}
+
+.nav-btn {
+  border: 0;
+  background: none;
+  width: 33.33%;
+  height: 48px;
+  font-size: 25px;
+}
+
+.nav-btn.active {
+  color: var(--blue);
+}
+
+/* UPLOAD FORM */
+
+.upload-panel {
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  padding: 15px;
+  outline: none;
+  background: white;
+}
+
+.field:focus {
+  border-color: var(--blue);
+}
+
+#title {
+  font-size: 20px;
+}
+
+#html {
+  height: 40vh;
+  min-height: 250px;
+  resize: vertical;
+  font-family: monospace;
+  border-radius: 22px;
+}
+
+.file-box {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 20px;
+  width: 100%;
+}
+
+.button-row {
+  display: flex;
+  gap: 10px;
+}
+
+.primary {
+  flex: 1;
+  padding: 14px 5px;
+  border: 0;
+  border-radius: 30px;
+  background: var(--blue);
+  color: white;
+}
+
+.primary:disabled {
+  opacity: 0.6;
+}
+
+.message {
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+/* PROFILE */
+
+.profile-wrap {
+  padding: 22px 16px;
+}
+
+.page-title {
+  font-size: 23px;
+  margin-bottom: 15px;
+}
+
+.profile-card {
+  border: 1px solid #eee;
+  border-radius: 24px;
+  padding: 25px 16px;
+  text-align: center;
+  box-shadow: 0 3px 12px #0001;
+}
+
+.avatar {
+  font-size: 58px;
+  margin-bottom: 10px;
+}
+
+.profile-card h2 {
+  font-size: 20px;
+  margin-bottom: 8px;
+  overflow-wrap: anywhere;
+}
+
+.profile-card p {
+  font-size: 14px;
+  color: #777;
+  line-height: 1.5;
+}
+
+.profile-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 14px;
+  border: 0;
+  border-radius: 28px;
+  background: var(--blue);
+  color: white;
+}
+
+.profile-links {
+  margin-top: 18px;
+  border: 1px solid #eee;
+  border-radius: 18px;
+  overflow: hidden;
+}
+
+.profile-links button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 17px;
+  background: white;
+  border: 0;
+  border-bottom: 1px solid #eee;
+}
+
+.profile-links i {
+  width: 28px;
+}
+
+/* PREVIEW AND PROJECT DETAILS */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: white;
+  display: none;
+  flex-direction: column;
+}
+
+.overlay.active {
+  display: flex;
+}
+
+.overlay-top {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+.overlay-top button {
+  border: 0;
+  border-radius: 25px;
+  padding: 9px 14px;
+}
+
+.overlay iframe {
+  flex: 1;
+  width: 100%;
+  border: 0;
+}
+
+.overlay-actions {
+  display: flex;
+  gap: 8px;
+  padding: 8px;
+  border-top: 1px solid #eee;
+}
+
+.overlay-actions button {
+  flex: 1;
+  padding:10px;
+  border: 1px solid #ddd;
+  border-radius: 14px;
+  background: white;
+}
+
+.overlay-actions .blue {
+  background: var(--blue);
+  color: white;
+}
+
+@media (max-width: 360px) {
+  .cards {
+    gap: 5px;
+    padding: 5px;
+  }
+
+  .card {
+    padding: 4px;
+  }
+
+  .card-title {
+    font-size: 14px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- 1. HOME PAGE -->
+
+<section class="screen active" id="home">
+
+  <header class="header">
+    <div class="search-row">
+
+      <label class="search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input id="searchInput"
+          type="search"
+          placeholder="Search projects...">
+      </label>
+
+      <button class="bookmark" id="savedButton"
+        aria-label="Saved projects">
+        <i class="fa-regular fa-bookmark"></i>
+      </button>
+
+    </div>
+  </header>
+
+  <div class="cards" id="cards">
+    <div class="empty">Loading projects...</div>
+  </div>
+
+</section>
+
+
+<!-- 2. UPLOAD PAGE -->
+
+<section class="screen" id="addicon">
+
+  <div class="upload-panel">
+
+    <input class="field" id="title"
+      maxlength="80"
+      placeholder="Project title">
+
+    <textarea class="field" id="html"
+      placeholder="Paste HTML / CSS / JavaScript code"></textarea>
+
+    <label><b>App Icon / Image</b></label>
+
+    <input type="file" class="file-box" id="fileimg"
+      accept="image/png,image/jpeg,image/webp,image/gif">
+
+    <select class="field" id="visibility">
+      <option value="public">Public</option>
+      <option value="private">Private</option>
+    </select>
+
+    <div class="button-row">
+      <button class="primary" id="previewButton">
+        <i class="fa-regular fa-eye"></i> Preview
+      </button>
+
+      <button class="primary" id="uploadButton">
+        <i class="fa-solid fa-upload"></i> Upload
+      </button>
+    </div>
+
+    <p class="message" id="msg" role="status"></p>
+
+  </div>
+</section>
+
+
+<!-- 3. PROFILE PAGE -->
+
+<section class="screen" id="profile">
+
+  <div class="profile-wrap">
+
+    <h2 class="page-title">Profile</h2>
+
+    <div class="profile-card">
+
+      <div class="avatar">
+        <i class="fa-solid fa-circle-user"></i>
+      </div>
+
+      <h2 id="profileName">Welcome to HTMLHub</h2>
+
+      <p id="profileInfo">
+        Discover and share HTML projects.
+      </p>
+
+      <button class="profile-btn" id="authButton">
+        Login / Signup
+      </button>
+
+    </div>
+
+    <div class="profile-links">
+
+      <button id="myProjects">
+        <i class="fa-solid fa-folder"></i> My Projects
+      </button>
+
+      <button id="publicProjects">
+        <i class="fa-solid fa-compass"></i> Discover Projects
+      </button>
+
+      <button id="aboutButton">
+        <i class="fa-solid fa-circle-info"></i> About HTMLHub
+      </button>
+
+    </div>
+
+  </div>
+</section>
+
+
+<!-- 4. BOTTOM NAVIGATION -->
+
+<nav class="bottom-nav">
+
+  <button class="nav-btn active"
+    data-page="home" aria-label="Home">
+    <i class="fa-solid fa-house"></i>
+  </button>
+
+  <button class="nav-btn"
+    data-page="addicon" aria-label="Upload">
+    <i class="fa-solid fa-plus"></i>
+  </button>
+
+  <button class="nav-btn"
+    data-page="profile" aria-label="Profile">
+    <i class="fa-solid fa-circle-user"></i>
+  </button>
+
+</nav>
+
+
+<!-- 5. LIVE PREVIEW -->
+
+<div class="overlay" id="previewScreen">
+
+  <div class="overlay-top">
+    <button id="closePreview">
+      <i class="fa-solid fa-arrow-left"></i> Back
+    </button>
+    <b>Live Preview</b>
+  </div>
+
+  <iframe id="editorFrame"
+    sandbox="allow-scripts allow-forms allow-modals"
+    title="Code preview"></iframe>
+
+</div>
+
+
+<!-- 6. PROJECT DETAILS -->
+
+<div class="overlay" id="detailScreen">
+
+  <div class="overlay-top">
+
+    <button id="closeDetail" aria-label="Back">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+
+    <b id="detailTitle"
+      style="flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">
+      Project
+    </b>
+
+    <button id="detailSave" aria-label="Save project">
+      <i class="fa-regular fa-bookmark"></i>
+    </button>
+
+  </div>
+
+  <iframe id="detailFrame"
+    sandbox="allow-scripts allow-forms allow-modals"
+    title="Project preview"></iframe>
+
+  <div class="overlay-actions">
+
+    <button id="copyCode">
+      <i class="fa-regular fa-copy"></i> Copy HTML
+    </button>
+
+    <button id="shareProject" class="blue">
+      <i class="fa-solid fa-share-nodes"></i> Share
+    </button>
+
+  </div>
+</div>
+
+
+<script type="module">
+
+/* STEP 1: SUPABASE CONNECTION */
+
+import { createClient } from
+"https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const supabase = createClient(
+  "https://wgylobjcxqmjsutgdhdz.supabase.co",
+  "sb_publishable_IfpDVaKbbxem461SnCl9UA_LFwdNOon"
+);
+
+
+/* STEP 2: SHORTCUTS AND VARIABLES */
+
+const $ = id => document.getElementById(id);
+
+const cards = $("cards");
+const msg = $("msg");
+
+const FIRST_LOAD = 12;
+const NEXT_LOAD = 4;
+
+let allProjects = [];
+let currentProject = null;
+let currentUserId = null;
+
+let savedIds = [];
+
+try {
+  savedIds = JSON.parse(
+    localStorage.getItem("htmlhub_saved") || "[]"
+  );
+} catch {
+  savedIds = [];
+}
+
+let savedOnly = false;
+let myOnly = false;
+let loadingMore = false;
+let hasMore = true;
+let loadedCount = 0;
+let requestNumber = 0;
+
+
+/* STEP 3: PAGE NAVIGATION */
+
+function nav(page) {
+
+  document.querySelectorAll(".screen").forEach(screen => {
+    screen.classList.remove("active");
+  });
+
+  $(page).classList.add("active");
+
+  document.querySelectorAll(".nav-btn").forEach(button => {
+    button.classList.toggle(
+      "active",
+      button.dataset.page === page
+    );
+  });
+
+  window.scrollTo(0, 0);
+}
+
+document.querySelectorAll(".nav-btn").forEach(button => {
+  button.addEventListener("click", () => {
+    nav(button.dataset.page);
+  });
+});
+
+
+/* STEP 4: SHOW MESSAGES */
+
+function showMessage(text, success = false) {
+  msg.textContent = text;
+  msg.style.color = success ? "#138044" : "#d12b2b";
+}
+
+
+/* STEP 5: LOAD PROJECTS FROM SUPABASE */
+
+async function loadCards(reset = true) {
+
+  if (loadingMore || (!reset && !hasMore)) return;
+
+  loadingMore = true;
+
+  const thisRequest = ++requestNumber;
+
+  if (reset) {
+    allProjects = [];
+    loadedCount = 0;
+    hasMore = true;
+    cards.innerHTML =
+      '<div class="empty">Loading projects...</div>';
+  }
+
+  try {
+
+    const from = reset ? 0 : loadedCount;
+    const size = reset ? FIRST_LOAD : NEXT_LOAD;
+
+    const { data, error } = await supabase
+      .from("BIG")
+      .select("id,title,html,icon_url,user_id,visibility,created_at")
+      .eq("visibility", "public")
+      .order("created_at", { ascending: false })
+      .range(from, from + size - 1);
+
+    if (thisRequest !== requestNumber) return;
+
+    if (error) throw error;
+
+    const rows = data || [];
+
+    allProjects = reset
+      ? rows
+      : [...allProjects, ...rows];
+
+    loadedCount = allProjects.length;
+    hasMore = rows.length === size;
+
+    renderCards();
+
+  } catch (error) {
+
+    console.error(error);
+
+    if (reset) {
+      cards.innerHTML =
+        '<div class="empty">Projects load nahi hue. Internet aur Supabase settings check karein.</div>';
+    }
+
+  } finally {
+
+    if (thisRequest === requestNumber) {
+      loadingMore = false;
+    }
+  }
+}
+
+
+/* STEP 6: LOAD MORE WHEN SCROLLING */
+
+window.addEventListener("scroll", () => {
+
+  if (!$("home").classList.contains("active")) return;
+  if (loadingMore || !hasMore) return;
+
+  const nearBottom =
+    window.innerHeight + window.scrollY >=
+    document.documentElement.scrollHeight - 250;
+
+  if (nearBottom) {
+    loadCards(false);
+  }
+
+}, { passive: true });
+
+
+/* STEP 7: DISPLAY PROJECT CARDS */
+
+function renderCards() {
+
+  cards.innerHTML = "";
+
+  const query = $("searchInput").value
+    .trim()
+    .toLowerCase();
+
+  const projects = allProjects.filter(project => {
+
+    const matchesSearch =
+      (project.title || "").toLowerCase().includes(query);
+
+    const matchesSaved =
+      !savedOnly || savedIds.includes(String(project.id));
+
+    const matchesMine =
+      !myOnly || project.user_id === currentUserId;
+
+    return matchesSearch && matchesSaved && matchesMine;
+  });
+
+  if (!projects.length) {
+
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "No projects found.";
+    cards.append(empty);
+
+  } else {
+
+    projects.forEach(project => {
+
+      const card = document.createElement("article");
+      card.className = "card";
+
+      const image = document.createElement("img");
+      image.src = project.icon_url || "";
+      image.alt = project.title || "Project";
+      image.loading = "lazy";
+
+      image.onerror = () => {
+        image.onerror = null;
+        image.src =
+          "data:image/svg+xml," +
+          encodeURIComponent(
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#eee"/><text x="100" y="110" text-anchor="middle" font-size="40" fill="#777">HTML</text></svg>'
+          );
+      };
+
+      const title = document.createElement("div");
+      title.className = "card-title";
+      title.textContent = project.title || "Untitled";
+
+      const actions = document.createElement("div");
+      actions.className = "card-actions";
+
+      const open = document.createElement("button");
+      open.className = "small-btn";
+      open.innerHTML = '<i class="fa-solid fa-eye"></i>';
+      open.setAttribute("aria-label", "Open project");
+      open.addEventListener("click", () => openProject(project));
+
+      const save = document.createElement("button");
+      save.className = "small-btn";
+
+      save.innerHTML = savedIds.includes(String(project.id))
+        ? '<i class="fa-solid fa-bookmark"></i>'
+        : '<i class="fa-regular fa-bookmark"></i>';
+
+      save.setAttribute("aria-label", "Save project");
+      save.addEventListener("click", () => toggleSave(project));
+
+      actions.append(open, save);
+      card.append(image, title, actions);
+
+      card.addEventListener("click", event => {
+        if (!event.target.closest("button")) {
+          openProject(project);
+        }
+      });
+
+      cards.append(card);
+    });
+  }
+
+  if (hasMore) {
+    const status = document.createElement("div");
+    status.className = "load-status";
+    status.textContent = "Scroll down to load more...";
+    cards.append(status);
+  } else if (allProjects.length) {
+    const status = document.createElement("div");
+    status.className = "load-status";
+    status.textContent = "All projects loaded";
+    cards.append(status);
+  }
+}
+
+
+/* STEP 8: SAVE AND UNSAVE PROJECTS */
+
+function toggleSave(project) {
+
+  const id = String(project.id);
+
+  savedIds = savedIds.includes(id)
+    ? savedIds.filter(savedId => savedId !== id)
+    : [...savedIds, id];
+
+  localStorage.setItem(
+    "htmlhub_saved",
+    JSON.stringify(savedIds)
+  );
+
+  if (currentProject &&
+      String(currentProject.id) === id) {
+
+    $("detailSave").innerHTML =
+      savedIds.includes(id)
+      ? '<i class="fa-solid fa-bookmark"></i>'
+      : '<i class="fa-regular fa-bookmark"></i>';
+  }
+
+  renderCards();
+}
+
+
+/* STEP 9: OPEN A PROJECT */
+
+function openProject(project) {
+
+  currentProject = project;
+
+  $("detailTitle").textContent =
+    project.title || "Project";
+
+  $("detailFrame").srcdoc =
+    project.html || "";
+
+  $("detailSave").innerHTML =
+    savedIds.includes(String(project.id))
+    ? '<i class="fa-solid fa-bookmark"></i>'
+    : '<i class="fa-regular fa-bookmark"></i>';
+
+  $("detailScreen").classList.add("active");
+}
+
+$("closeDetail").addEventListener("click", () => {
+  $("detailScreen").classList.remove("active");
+  $("detailFrame").srcdoc = "";
+});
+
+$("detailSave").addEventListener("click", () => {
+  if (currentProject) toggleSave(currentProject);
+});
+
+
+/* STEP 10: COPY PROJECT CODE */
+
+$("copyCode").addEventListener("click", async () => {
+
+  if (!currentProject) return;
+
+  try {
+    await navigator.clipboard.writeText(
+      currentProject.html || ""
+    );
+
+    alert("HTML copied!");
+
+  } catch {
+    alert("Copy nahi hua. HTTPS par try karein.");
+  }
+});
+
+
+/* STEP 11: SHARE PROJECT */
+
+$("shareProject").addEventListener("click", async () => {
+
+  if (!currentProject) return;
+
+  const url =
+    location.origin +
+    location.pathname +
+    "#project-" + currentProject.id;
+
+  try {
+
+    if (navigator.share) {
+      await navigator.share({
+        title: currentProject.title,
+        url: url
+      });
+    } else {
+      await navigator.clipboard.writeText(url);
+      alert("Link copied: " + url);
+    }
+
+  } catch (error) {
+    if (error.name !== "AbortError") {
+      console.error(error);
+    }
+  }
+});
+
+
+/* STEP 12: SEARCH PROJECTS */
+
+$("searchInput").addEventListener("input", () => {
+
+  savedOnly = false;
+  myOnly = false;
+
+  $("savedButton").innerHTML =
+    '<i class="fa-regular fa-bookmark"></i>';
+
+  renderCards();
+});
+
+
+/* STEP 13: SHOW SAVED PROJECTS */
+
+$("savedButton").addEventListener("click", () => {
+
+  savedOnly = !savedOnly;
+  myOnly = false;
+
+  $("savedButton").innerHTML =
+    savedOnly
+    ? '<i class="fa-solid fa-bookmark"></i>'
+    : '<i class="fa-regular fa-bookmark"></i>';
+
+  nav("home");
+  renderCards();
+});
+
+
+/* STEP 14: LIVE PREVIEW */
+
+$("previewButton").addEventListener("click", () => {
+
+  $("editorFrame").srcdoc = $("html").value;
+
+  $("previewScreen").classList.add("active");
+});
+
+$("closePreview").addEventListener("click", () => {
+
+  $("previewScreen").classList.remove("active");
+  $("editorFrame").srcdoc = "";
+});
+
+
+/* STEP 15: CHECK CURRENT LOGIN */
+
+async function checkUser() {
+
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error) {
+    console.log(error.message);
+  }
+
+  const user = data?.user || null;
+
+  currentUserId = user?.id || null;
+
+  $("profileName").textContent =
+    user?.email || "Welcome to HTMLHub";
+
+  $("profileInfo").textContent = user
+    ? "You are logged in. You can upload projects."
+    : "Login or signup to upload projects.";
+
+  $("authButton").textContent = user
+    ? "Logout / Switch Account"
+    : "Login / Signup";
+}
+
+
+/* STEP 16: LOGIN BUTTON OPENS signup.html */
+
+// Important: button click par seedha signup.html khulega.
+// User already login ho tab bhi uska account logout nahi hoga.
+
+$("authButton").addEventListener("click", () => {
+  window.location.href = "./signup.html";
+});
+
+
+/* STEP 17: UPLOAD PROJECT TO SUPABASE */
+
+$("uploadButton").addEventListener("click", async () => {
+
+  const button = $("uploadButton");
+
+  if (button.disabled) return;
+
+  const title = $("title").value.trim();
+  const code = $("html").value;
+  const file = $("fileimg").files[0];
+  const visibility = $("visibility").value;
+
+  if (!title) {
+    showMessage("Project title enter karein.");
+    return;
+  }
+
+  if (!code.trim()) {
+    showMessage("HTML code enter karein.");
+    return;
+  }
+
+  if (!file) {
+    showMessage("Project image select karein.");
+    return;
+  }
+
+  if (!file.type.startsWith("image/")) {
+    showMessage("Valid image select karein.");
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    showMessage("Image maximum 5 MB honi chahiye.");
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = "Uploading...";
+  showMessage("Please wait...");
+
+  try {
+
+    const { data, error: authError } =
+      await supabase.auth.getUser();
+
+    if (authError) throw authError;
+
+    const user = data?.user;
+
+    if (!user) {
+      showMessage("Pehle login karein.");
+
+      setTimeout(() => {
+        window.location.href = "./signup.html";
+      }, 800);
+
+      return;
+    }
+
+    const extension =
+      (file.name.split(".").pop() || "png")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "") || "png";
+
+    const fileName =
+      user.id + "/" + Date.now() + "." + extension;
+
+    const { error: storageError } =
+      await supabase.storage
+        .from("BIG")
+        .upload(fileName, file, {
+          upsert: false,
+          contentType: file.type
+        });
+
+    if (storageError) throw storageError;
+
+    const { data: urlData } =
+      supabase.storage
+        .from("BIG")
+        .getPublicUrl(fileName);
+
+    const { error: insertError } =
+      await supabase.from("BIG").insert({
+        title: title,
+        html: code,
+        icon_url: urlData.publicUrl,
+        visibility: visibility,
+        user_id: user.id
+      });
+
+    if (insertError) throw insertError;
+
+    showMessage("Upload successful!", true);
+
+    $("title").value = "";
+    $("html").value = "";
+    $("fileimg").value = "";
+
+    myOnly = false;
+    savedOnly = false;
+
+    nav("home");
+    await loadCards(true);
+
+  } catch (error) {
+
+    console.error(error);
+
+    showMessage(
+      error.message || "Upload failed. Supabase settings check karein."
+    );
+
+  } finally {
+
+    button.disabled = false;
+
+    button.innerHTML =
+      '<i class="fa-solid fa-upload"></i> Upload';
+  }
+});
+
+
+/* STEP 18: MY PROJECTS */
+
+$("myProjects").addEventListener("click", async () => {
+
+  const { data, error } = await supabase.auth.getUser();
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  if (!data.user) {
+    alert("Please login first.");
+    window.location.href = "./signup.html";
+    return;
+  }
+
+  currentUserId = data.user.id;
+  myOnly = true;
+  savedOnly = false;
+
+  $("searchInput").value = "";
+
+  await loadCards(true);
+  nav("home");
+});
+
+
+/* STEP 19: DISCOVER PROJECTS */
+
+$("publicProjects").addEventListener("click", async () => {
+
+  myOnly = false;
+  savedOnly = false;
+
+  $("searchInput").value = "";
+
+  $("savedButton").innerHTML =
+    '<i class="fa-regular fa-bookmark"></i>';
+
+  await loadCards(true);
+  nav("home");
+});
+
+
+/* STEP 20: ABOUT HTMLHUB */
+
+$("aboutButton").addEventListener("click", () => {
+  alert("HTMLHub — Discover, preview and share HTML projects.");
+});
+
+
+/* STEP 21: UPDATE LOGIN STATE */
+
+supabase.auth.onAuthStateChange(() => {
+  setTimeout(() => {
+    checkUser();
+  }, 0);
+});
+
+
+/* STEP 22: START THE APP */
+
+await checkUser();
+await loadCards(true);
+
+</script>
+</body>
+</html>

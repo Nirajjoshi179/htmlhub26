@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#ffffff">
+<title>HTMLHub - Account</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+ font-family:Arial,sans-serif;background:#fff;color:#080808;
+ min-height:100vh;display:flex;align-items:center;
+ justify-content:center;padding:20px;
+}
+.card{
+ width:100%;max-width:400px;padding:25px 20px;
+ border:1px solid #eee;border-radius:28px;
+ box-shadow:0 5px 25px #0001;
+}
+h1{text-align:center;font-size:30px;margin-bottom:8px}
+.sub{text-align:center;color:#777;margin-bottom:25px}
+.tabs{display:flex;gap:10px;margin-bottom:22px}
+.tabs button{
+ flex:1;padding:12px;border:1px solid #ddd;
+ border-radius:25px;background:#fff;font-weight:bold;
+}
+.tabs button.active{background:#087ff5;color:#fff;border-color:#087ff5}
+label{display:block;font-size:14px;margin:15px 0 7px}
+input{
+ width:100%;padding:15px;border:1px solid #ddd;
+ border-radius:15px;font-size:16px;outline:none;
+}
+input:focus{border-color:#087ff5}
+.submit{
+ width:100%;padding:15px;margin-top:22px;
+ background:#087ff5;color:#fff;border:0;
+ border-radius:25px;font-size:17px;font-weight:bold;
+}
+#message{
+ margin-top:15px;text-align:center;font-size:14px;
+ line-height:1.5;overflow-wrap:anywhere;
+}
+.back{
+ display:block;text-align:center;margin-top:20px;
+ color:#087ff5;text-decoration:none;
+}
+</style>
+</head>
+
+<body>
+<div class="card">
+ <h1>HTMLHub</h1>
+ <p class="sub">Create your account or sign in</p>
+
+ <div class="tabs">
+  <button id="loginTab" class="active" type="button">Login</button>
+  <button id="signupTab" type="button">Signup</button>
+ </div>
+
+ <form id="authForm">
+  <label for="email">Email address</label>
+  <input id="email" type="email" required
+   autocomplete="email" placeholder="Enter your email">
+
+  <label for="password">Password</label>
+  <input id="password" type="password" required
+   minlength="6" autocomplete="current-password"
+   placeholder="Minimum 6 characters">
+
+  <button class="submit" id="submitButton" type="submit">
+   Login
+  </button>
+ </form>
+
+ <p id="message" role="status"></p>
+ <a class="back" href="index.html">← Back to HTMLHub</a>
+</div>
+
+<script type="module">
+import {createClient} from
+ "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+const supabase=createClient(
+ "https://wgylobjcxqmjsutgdhdz.supabase.co",
+ "sb_publishable_IfpDVaKbbxem461SnCl9UA_LFwdNOon"
+);
+
+const $=id=>document.getElementById(id);
+
+let mode="login";
+let busy=false;
+
+function setMode(next){
+ mode=next;
+
+ $("loginTab").classList.toggle("active",mode==="login");
+ $("signupTab").classList.toggle("active",mode==="signup");
+
+ $("submitButton").textContent=
+  mode==="login"?"Login":"Create Account";
+
+ $("password").autocomplete=
+  mode==="login"?"current-password":"new-password";
+
+ $("message").textContent="";
+}
+
+$("loginTab").addEventListener("click",()=>setMode("login"));
+$("signupTab").addEventListener("click",()=>setMode("signup"));
+
+$("authForm").addEventListener("submit",async e=>{
+ e.preventDefault();
+ if(busy)return;
+
+ const email=$("email").value.trim();
+ const password=$("password").value;
+ const btn=$("submitButton");
+ const message=$("message");
+
+ if(!email||!password)return;
+
+ busy=true;
+ btn.disabled=true;
+ btn.textContent="Please wait...";
+ message.style.color="#555";
+ message.textContent="Processing...";
+
+ try{
+  if(mode==="signup"){
+   const {data,error}=await supabase.auth.signUp({
+    email,
+    password,
+    options:{
+     emailRedirectTo:new URL("index.html",location.href).href
+    }
+   });
+
+   if(error)throw error;
+
+   if(data.session){
+    message.style.color="#138044";
+    message.textContent="Account created successfully!";
+    location.replace("index.html");
+    return;
+   }
+
+   message.style.color="#138044";
+   message.textContent=
+    "Signup request successful. Agar email confirmation enabled hai, inbox mein confirmation link check karein. Confirm karne ke baad Login karein.";
+
+  }else{
+   const {error}=await supabase.auth.signInWithPassword({
+    email,
+    password
+   });
+
+   if(error)throw error;
+
+   message.style.color="#138044";
+   message.textContent="Login successful!";
+   location.replace("index.html");
+   return;
+  }
+
+ }catch(error){
+  message.style.color="#d12b2b";
+  message.textContent=error.message||"Something went wrong.";
+ }finally{
+  busy=false;
+  btn.disabled=false;
+  btn.textContent=mode==="login"?"Login":"Create Account";
+ }
+});
+</script>
+</body>
+</html>
